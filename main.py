@@ -1,5 +1,6 @@
 import asyncio
-
+import aiofiles
+import datetime
 
 async def tcp_echo_client(message):
     reader, writer = await asyncio.open_connection(
@@ -8,10 +9,11 @@ async def tcp_echo_client(message):
     # print(f'Send: {message!r}')
     # writer.write(message.encode())
     data = await reader.read(1000)
-    print(f'Received: {data.decode()!r}')
     while data:
+        async with aiofiles.open("messages.txt", "a") as f:
+            await f.write(f'[{datetime.datetime.now().strftime("%d/%m/%Y %H:%M")}] {data.decode()}')
+            print(f'[{datetime.datetime.now().strftime("%d/%m/%Y %H:%M")}] {data.decode()}')
         data = await reader.read(1000)
-        print(f'Received: {data.decode()!r}')
 
     print('Close the connection')
     writer.close()
